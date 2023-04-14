@@ -26,6 +26,11 @@ class File
         Macro::bootstrap();
     }
 
+    public function __unserialize(array $data): void
+    {
+        $this->flush();
+    }
+
     public function prefix(string $prefix): self
     {
         $this->prefix = Hash::md5($prefix);
@@ -79,10 +84,7 @@ class File
             throw new Exception("Cannot append to key $key with previously string value.");
         }
 
-        $this->storage()->put(
-            $this->key($key),
-            $current->push($value)->unique()->map(fn (mixed $value) => Entry::create($value)->value())->toArray()
-        );
+        $this->put($key, $current->push($value)->unique());
 
         $this->persist();
     }
@@ -92,6 +94,19 @@ class File
         $this->storage()->forget($this->key($key));
 
         $this->persist();
+    }
+
+    public function forgetIndex(string $key, int $index): void
+    {
+        $current = $this->get($key);
+
+        if (Types::string($current)) {
+            return;
+        }
+
+        $current->splice($index, 1);
+
+        $this->put($key, $current);
     }
 
     public function get(?string $key = null): mixed
