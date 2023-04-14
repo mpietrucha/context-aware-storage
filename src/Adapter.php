@@ -82,7 +82,7 @@ class Adapter
     {
         $this->append($key, $value);
 
-        $value = $this->get($key)->filter(function (mixed $entry) use ($value) {
+        $value = $this->get($key)->filter(function (mixed $entry) use ($value, $callback) {
             return value($callback ?? fn (mixed $entry) => $entry !== $value, $entry);
         });
 
