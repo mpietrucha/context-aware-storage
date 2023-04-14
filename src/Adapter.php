@@ -9,6 +9,7 @@ use Mpietrucha\Storage\Concerns\AdapterInterface;
 use Mpietrucha\Storage\Adapter\File;
 use Illuminate\Support\Collection;
 use Mpietrucha\Support\Hash;
+use Mpietrucha\Support\Types;
 
 class Adapter
 {
@@ -74,7 +75,18 @@ class Adapter
             throw new Exception("Cannot append to key `$key` with previously non array value.");
         }
 
-        $this->put($key, $current->push($value)->unique());
+        $this->put($key, $current->push($value));
+    }
+
+    public function appendUnique(string $key, mixed $value, ?Closure $callback = null): void
+    {
+        $this->append($key, $value);
+
+        $value = $this->get($key)->filter(function (mixed $entry) use ($value) {
+            return value($callback ?? fn (mixed $entry) => $entry !== $value, $entry);
+        });
+
+        $this->put($key, $value);
     }
 
     public function forget(string $key): void
