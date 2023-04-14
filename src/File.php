@@ -107,6 +107,12 @@ class File
         $current->splice($index, 1);
 
         $this->put($key, $current);
+
+        if ($this->get($key)->count()) {
+            return;
+        }
+
+        $this->forget($key);
     }
 
     public function get(?string $key = null): mixed
