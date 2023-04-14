@@ -19,16 +19,9 @@ class File
 
     protected ?string $path = null;
 
-    protected ?Collection $storage = null;
-
     public function __construct(protected ?string $prefix = null, protected ?string $directory = null, protected ?string $file = null)
     {
         Macro::bootstrap();
-    }
-
-    public function __unserialize(array $data): void
-    {
-        $this->flush();
     }
 
     public function prefix(string $prefix): self
@@ -42,14 +35,14 @@ class File
     {
         $this->directory = $directory;
 
-        return $this->flush();
+        return $this;
     }
 
     public function file(string $file): self
     {
         $this->file = $file;
 
-        return $this->flush();
+        return $this;
     }
 
     public function temporary(): self
@@ -65,8 +58,6 @@ class File
     public function delete(): void
     {
         unlink($this->path());
-
-        $this->flush();
     }
 
     public function put(string $key, mixed $value): void
@@ -134,15 +125,9 @@ class File
 
     protected function storage(): Collection
     {
-        if ($this->storage) {
-            return $this->storage;
-        }
-
-        $this->storage = Json::decodeToCollection(
+        return Json::decodeToCollection(
             file_get_contents($this->path())
         );
-
-        return $this->storage;
     }
 
     protected function key(string $key): string
@@ -168,12 +153,5 @@ class File
         }
 
         return $this->path;
-    }
-
-    protected function flush(): self
-    {
-        $this->storage = $this->path = null;
-
-        return $this;
     }
 }
