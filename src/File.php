@@ -26,6 +26,11 @@ class File
         Macro::bootstrap();
     }
 
+    public function __unserialize(array $data): void
+    {
+        $this->flush();
+    }
+
     public function prefix(string $prefix): self
     {
         $this->prefix = Hash::md5($prefix);
