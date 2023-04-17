@@ -107,7 +107,7 @@ class Adapter
 
     public function exists(string $key): bool
     {
-        return $this->adapter->get()->has($key);
+        return $this->adapter->get()->has($this->build($key));
     }
 
     public function existsUnique(string $key, Closure $callback): bool
