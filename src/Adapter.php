@@ -10,6 +10,7 @@ use Mpietrucha\Storage\Adapter\File;
 use Illuminate\Support\Collection;
 use Mpietrucha\Support\Condition;
 use Mpietrucha\Support\Hash;
+use Mpietrucha\Support\Types;
 
 class Adapter
 {
@@ -49,6 +50,10 @@ class Adapter
 
         if ($key) {
             $storage = $storage->get($this->build($key));
+        }
+
+        if (Types::array($storage)) {
+            $storage = collect($storage);
         }
 
         return Condition::create($storage)->add(fn () => $storage->recursive(), $storage instanceof Collection)->resolve();
