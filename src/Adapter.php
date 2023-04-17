@@ -118,9 +118,9 @@ class Adapter
 
         $current = $this->enshureCollection($key, true);
 
-        $potencialValueEntry = Entry::create($value)->loop();
+        $compareValueEntry = Entry::create($value)->loop();
 
-        return $current->first(fn (mixed $entry) => $callback($entry, $potencialValueEntry)) !== null;
+        return $current->first(fn (mixed $entry) => $callback($entry, $compareValueEntry)) !== null;
     }
 
     public function delete(): void
