@@ -77,6 +77,28 @@ class Adapter
         $this->append($key, $value);
     }
 
+    public function exists(string $key): bool
+    {
+        return $this->adapter->get()->has($this->build($key));
+    }
+
+    public function existsUnique(string $key, Closure $callback, mixed $value = null): bool
+    {
+        if (! $this->exists($key)) {
+            return false;
+        }
+
+        $current = $this->enshureCollection($key, true);
+
+        $this->put($temporaryKey = uniqid(), $value);
+
+        $exists = $current->first(fn (mixed $entry) => $callback($entry, $temporaryValueEntry ??= $this->get($temporaryKey))) !== null;
+
+        $this->forget($temporaryKey);
+
+        return $exists;
+    }
+
     public function forget(string $key): void
     {
         $storage = $this->adapter->get()->forget($this->build($key));
@@ -103,24 +125,6 @@ class Adapter
         }
 
         $this->forget($key);
-    }
-
-    public function exists(string $key): bool
-    {
-        return $this->adapter->get()->has($this->build($key));
-    }
-
-    public function existsUnique(string $key, Closure $callback, mixed $value = null): bool
-    {
-        if (! $this->exists($key)) {
-            return false;
-        }
-
-        $current = $this->enshureCollection($key, true);
-
-        $compareValueEntry = Entry::create($value)->loop();
-
-        return $current->first(fn (mixed $entry) => $callback($entry, $compareValueEntry)) !== null;
     }
 
     public function delete(): void
