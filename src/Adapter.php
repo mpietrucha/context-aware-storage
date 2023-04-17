@@ -49,14 +49,10 @@ class Adapter
         $storage = $this->adapter->get()->mapRecursive(fn (string $entry) => Entry::create($entry)->resolve());
 
         if ($key) {
-            $storage = $storage->get($this->build($key));
+            return $storage->get($this->build($key));
         }
 
-        if (Types::array($storage)) {
-            $storage = collect($storage);
-        }
-
-        return Condition::create($storage)->add(fn () => $storage->recursive(), $storage instanceof Collection)->resolve();
+        return $storage;
     }
 
     public function put(string $key, mixed $value): void
