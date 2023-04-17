@@ -9,7 +9,6 @@ use Mpietrucha\Storage\Concerns\AdapterInterface;
 use Mpietrucha\Storage\Adapter\File;
 use Illuminate\Support\Collection;
 use Mpietrucha\Support\Hash;
-use Mpietrucha\Support\Types;
 
 class Adapter
 {
