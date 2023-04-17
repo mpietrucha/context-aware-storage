@@ -120,7 +120,7 @@ class Adapter
     {
         $current = $this->enshureCollection($key, true);
 
-        return $current->first($callback);
+        return $current->first($callback) !== null;
     }
 
     public function delete(): void
