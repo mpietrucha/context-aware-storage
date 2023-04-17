@@ -118,7 +118,7 @@ class Adapter
 
     public function existsUnique(string $key, Closure $callback): bool
     {
-        $current = $this->enshureCollection($key);
+        $current = $this->enshureCollection($key, true);
 
         return $current->first($callback);
     }
