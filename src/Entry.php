@@ -27,6 +27,11 @@ class Entry
         return $this->handler(fn () => serialize($this->value));
     }
 
+    public function loop(): mixed
+    {
+        return self::create($this->value())->resolve();
+    }
+
     protected function handler(Closure $callback): mixed
     {
         return Reporting::create('8.*')->withoutDeprecated()->while($callback);

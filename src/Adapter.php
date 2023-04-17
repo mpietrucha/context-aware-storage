@@ -118,7 +118,7 @@ class Adapter
 
         $current = $this->enshureCollection($key, true);
 
-        $potencialValueEntry = Entry::create($value)->value();
+        $potencialValueEntry = Entry::create($value)->loop();
 
         return $current->first(fn (mixed $entry) => $callback($entry, $potencialValueEntry)) !== null;
     }
