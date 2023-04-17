@@ -70,7 +70,7 @@ class Adapter
 
     public function appendUnique(string $key, mixed $value, Closure $callback): void
     {
-        if ($this->existsUnique($key, $callback)) {
+        if ($this->existsUnique($key, $callback, $value)) {
             return;
         }
 
@@ -110,7 +110,7 @@ class Adapter
         return $this->adapter->get()->has($this->build($key));
     }
 
-    public function existsUnique(string $key, Closure $callback): bool
+    public function existsUnique(string $key, Closure $callback, mixed $value = null): bool
     {
         if (! $this->exists($key)) {
             return false;
@@ -118,7 +118,9 @@ class Adapter
 
         $current = $this->enshureCollection($key, true);
 
-        return $current->first($callback) !== null;
+        $potencialValueEntry = Entry::create($value)->value();
+
+        return $current->first(fn (mixed $entry) => $callback($entry, $potencialValueEntry)) !== null;
     }
 
     public function delete(): void
