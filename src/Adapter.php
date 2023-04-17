@@ -44,19 +44,13 @@ class Adapter
 
     public function get(?string $key = null): mixed
     {
-        $storage = $this->adapter->get()->mapRecursive(fn (string $entry) => Entry::create($entry)->resolve());
+        $storage = $this->adapter->get()->mapRecursive(fn (string $entry) => Entry::create($entry)->resolve())->recursive();
 
         if (! $key) {
-            return $storage->recursive();
+            return $storage;
         }
 
-        $current = $storage->get($this->build($key));
-
-        if ($current instanceof Collection) {
-            return $current->recursive();
-        }
-
-        return $current;
+        return $storage->get($this->build($key));
     }
 
     public function put(string $key, mixed $value): void
@@ -117,6 +111,10 @@ class Adapter
 
     public function existsUnique(string $key, Closure $callback): bool
     {
+        if (! $this->exists($key)) {
+            return false;
+        }
+
         $current = $this->enshureCollection($key, true);
 
         return $current->first($callback) !== null;
