@@ -73,7 +73,7 @@ class Adapter
             return;
         }
 
-        $this->put($key, $value);
+        $this->append($key, $value);
     }
 
     public function forget(string $key): void
