@@ -69,26 +69,16 @@ class Adapter
 
     public function append(string $key, mixed $value): void
     {
-        $current = $this->get($key) ?? collect();
-
-        if (! $current instanceof Collection) {
-            throw new Exception("Cannot append to key `$key` with previously non array value.");
-        }
+        $current = $this->enshureCollection($key, true);
 
         $this->put($key, $current->push($value));
     }
 
-    public function appendUnique(string $key, mixed $value, ?Closure $callback = null): void
+    public function appendUnique(string $key, mixed $value, Closure $callback): void
     {
-        $this->append($key, $value);
-
-        $added = $this->get($key)->last();
-
-        $callback ??= fn (mixed $entry, mixed $added) => $entry !== $added;
-
-        $value = $this->get($key)->filter(function (mixed $entry) use ($callback, $added) {
-            return value($callback, $entry, $added);
-        });
+        if ($this->existsUnique($key, $callback)) {
+            return;
+        }
 
         $this->put($key, $value);
     }
@@ -108,11 +98,7 @@ class Adapter
 
     public function forgetIndex(string $key, int $index): void
     {
-        $current = $this->get($key);
-
-        if (! $current instanceof Collection) {
-            return;
-        }
+        $current = $this->enshureCollection($key);
 
         $current->splice($index, 1);
 
@@ -123,6 +109,18 @@ class Adapter
         }
 
         $this->forget($key);
+    }
+
+    public function exists(string $key): bool
+    {
+        return $this->adapter->get()->has($key);
+    }
+
+    public function existsUnique(string $key, Closure $callback): bool
+    {
+        $current = $this->enshureCollection($key);
+
+        return $current->first($callback);
     }
 
     public function delete(): void
@@ -144,5 +142,20 @@ class Adapter
     protected function build(string $key): string
     {
         return ($this->builder)($key);
+    }
+
+    protected function enshureCollection(string $key, bool $default = false): Collection
+    {
+        $current = $this->get($key);
+
+        if ($default) {
+            $current ??= collect();
+        }
+
+        if (! $current instanceof Collection) {
+            throw new Exception("Cannot append to key `$key` with previously non array value.");
+        }
+
+        return $current;
     }
 }
