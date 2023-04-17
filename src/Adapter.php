@@ -8,6 +8,7 @@ use Mpietrucha\Support\Concerns\HasFactory;
 use Mpietrucha\Storage\Concerns\AdapterInterface;
 use Mpietrucha\Storage\Adapter\File;
 use Illuminate\Support\Collection;
+use Mpietrucha\Support\Condition;
 use Mpietrucha\Support\Hash;
 
 class Adapter
@@ -44,13 +45,13 @@ class Adapter
 
     public function get(?string $key = null): mixed
     {
-        $storage = $this->adapter->get()->mapRecursive(fn (string $entry) => Entry::create($entry)->resolve())->recursive();
+        $storage = $this->adapter->get()->mapRecursive(fn (string $entry) => Entry::create($entry)->resolve());
 
-        if (! $key) {
-            return $storage;
+        if ($key) {
+            $storage = $storage->get($this->build($key));
         }
 
-        return $storage->get($this->build($key));
+        return Condition::create($storage)->add(fn () => $storage->recursive(), $storage instanceof Collection)->resolve();
     }
 
     public function put(string $key, mixed $value): void
