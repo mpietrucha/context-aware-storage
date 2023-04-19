@@ -25,7 +25,7 @@ class Adapter
     {
         $this->forwardTo(new Processor($adapter));
 
-        $this->forwardsCallsArgumentsTransformer(function (Collection $arguments) {
+        $this->forwardsArgumentsTransformer(function (Collection $arguments) {
             $arguments->get(0)->nullable()->string()->transform(
                 Caller::create($this->builder)->add($this->defaultBuildStrategy(...))->get()
             );
