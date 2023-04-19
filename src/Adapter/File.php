@@ -7,7 +7,7 @@ use Mpietrucha\Support\Json;
 use Mpietrucha\Support\Macro;
 use Illuminate\Support\Collection;
 use Mpietrucha\Support\Concerns\HasVendor;
-use Mpietrucha\Storage\Concerns\AdapterInterface;
+use Mpietrucha\Storage\Contracts\AdapterInterface;
 
 class File implements AdapterInterface
 {

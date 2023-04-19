@@ -1,6 +1,6 @@
 <?php
 
-namespace Mpietrucha\Storage\Concerns;
+namespace Mpietrucha\Storage\Contracts;
 
 use Illuminate\Support\Collection;
 
