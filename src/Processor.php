@@ -4,6 +4,7 @@ namespace Mpietrucha\Storage;
 
 use Exception;
 use Closure;
+use Mpietrucha\Support\Caller;
 use Illuminate\Support\Collection;
 use Mpietrucha\Storage\Contracts\AdapterInterface;
 
@@ -13,15 +14,21 @@ class Processor
     {
     }
 
-    public function get(?string $key = null): mixed
+    public function get(?string $key = null, ?Closure $map = null): mixed
     {
-        $storage = $this->adapter->get()->mapRecursive(fn (string $entry) => Entry::create($entry)->resolve());
+        return $this->adapter->get()->mapRecursive(
+            Caller::create($map)->add(fn (string $entry) => Entry::create($entry)->resolve())->get()
+        )->when($key, fn (Collection $storage) => $storage->get($key));
+    }
 
-        if ($key) {
-            return $storage->get($key);
-        }
+    public function entry(?string $key): null|Entry|Collection
+    {
+        return $this->get($key, fn (string $entry) => Entry::create($entry));
+    }
 
-        return $storage;
+    public function raw(string $key = null): null|string|Collection
+    {
+        return $this->get($key, fn (string $entry) => $entry);
     }
 
     public function put(string $key, mixed $value): void
