@@ -4,6 +4,7 @@ namespace Mpietrucha\Storage;
 
 use Exception;
 use Closure;
+use Mpietrucha\Support\Serializer;
 use Mpietrucha\Support\Caller;
 use Illuminate\Support\Collection;
 use Mpietrucha\Storage\Contracts\AdapterInterface;
@@ -17,13 +18,13 @@ class Processor
     public function get(?string $key = null, ?Closure $map = null): mixed
     {
         return $this->adapter->get()->mapRecursive(
-            Caller::create($map)->add(fn (string $entry) => Entry::create($entry)->resolve())->get()
+            Caller::create($map)->add(fn (string $entry) => Serializer::create($entry)->unserialize())->get()
         )->when($key, fn (Collection $storage) => $storage->get($key));
     }
 
-    public function entry(?string $key): null|Entry|Collection
+    public function serializer(?string $key): null|Serializer|Collection
     {
-        return $this->get($key, fn (string $entry) => Entry::create($entry));
+        return $this->get($key, fn (string $entry) => Serializer::create($entry));
     }
 
     public function raw(string $key = null): null|string|Collection
@@ -33,7 +34,7 @@ class Processor
 
     public function put(string $key, mixed $value): void
     {
-        $storage = $this->adapter->get()->put($key, Entry::create($value)->value());
+        $storage = $this->adapter->get()->put($key, Serializer::create($value)->unserialize());
 
         $this->adapter->set($storage);
     }
