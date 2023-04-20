@@ -15,11 +15,9 @@ class Processor
     {
     }
 
-    public function get(?string $key = null, ?Closure $map = null): mixed
+    public function raw(string $key = null): null|string|Collection
     {
-        return $this->adapter->get()->mapRecursive(
-            Caller::create($map)->add(fn (string $entry) => Serializer::create($entry)->unserialize())->get()
-        )->when($key, fn (Collection $storage) => $storage->get($key));
+        return $this->get($key, fn (string $entry) => $entry);
     }
 
     public function serializer(?string $key): null|Serializer|Collection
@@ -27,14 +25,16 @@ class Processor
         return $this->get($key, fn (string $entry) => Serializer::create($entry));
     }
 
-    public function raw(string $key = null): null|string|Collection
+    public function get(?string $key = null, ?Closure $map = null): mixed
     {
-        return $this->get($key, fn (string $entry) => $entry);
+        return $this->adapter->get()->mapRecursive(
+            Caller::create($map)->add(fn (string $entry) => Serializer::create($entry)->unserialize())->get()
+        )->when($key, fn (Collection $storage) => $storage->get($key));
     }
 
     public function put(string $key, mixed $value): void
     {
-        $storage = $this->adapter->get()->put($key, Serializer::create($value)->unserialize());
+        $storage = $this->adapter->get()->put($key, Serializer::create($value)->serialize());
 
         $this->adapter->set($storage);
     }
