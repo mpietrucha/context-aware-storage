@@ -8,7 +8,7 @@ use Mpietrucha\Support\Concerns\ForwardsCalls;
 use Mpietrucha\Storage\Contracts\AdapterInterface;
 use Mpietrucha\Storage\Adapter\File;
 use Mpietrucha\Support\Caller;
-use Illuminate\Support\Collection;
+use Mpietrucha\Support\Collection;
 use Mpietrucha\Support\Hash;
 
 class Adapter
