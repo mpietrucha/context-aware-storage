@@ -24,7 +24,7 @@ class Adapter
     public function __construct(protected AdapterInterface $adapter = new File)
     {
         $this->forwardTo(new Processor($adapter))->forwardsArgumentsTransformer(function (Collection $arguments) {
-            $arguments->get(0)->nullable()->string()->transform($this->buildStrategy(...));
+            $arguments->get(0)->nullable()->string()->transform($this->build(...));
         });
     }
 
@@ -44,7 +44,7 @@ class Adapter
         }
 
         $storage = $this->adapter->get()->reject(function (mixed $value, string $key) {
-            return $key === $this->buildStrategy($key);
+            return $key === $this->build($key);
         });
 
         $this->adapter->set($storage);
@@ -62,9 +62,9 @@ class Adapter
         return value($callback, $this->adapter) ?? $this->adapter;
     }
 
-    protected function buildStrategy(): Closure
+    protected function build(?string $key): ?string
     {
-        return Caller::create($this->builder)->add($this->defaultBuildStrategy(...))->get();
+        return Caller::create($this->builder)->add($this->defaultBuildStrategy(...))->call($key);
     }
 
     protected function defaultBuildStrategy(?string $key): ?string
