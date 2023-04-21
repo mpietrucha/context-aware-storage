@@ -27,9 +27,13 @@ class Processor
 
     public function get(?string $key = null, ?Closure $map = null): mixed
     {
-        return $this->adapter->get()->mapRecursive(
-            Caller::create($map)->add(fn (string $entry) => Serializer::create($entry)->unserialize())->get()
-        )->when($key, fn (Collection $storage) => $storage->get($key));
+        $entry = $this->storage->get()->when($key, fn (Collection $storage) => $storage->get($key));
+
+        $caller = Caller::create($map)->add(fn (string $entry) => Serializer::create($entry)->unserialize())->get();
+
+        return Condition::create(fn () => $caller($entry))
+            ->add(fn () => $entry->mapRecursive($caller), $entry instanceof Collection)
+            ->resolve();
     }
 
     public function put(string $key, mixed $value): void
