@@ -6,6 +6,7 @@ use Exception;
 use Closure;
 use Mpietrucha\Support\Serializer;
 use Mpietrucha\Support\Caller;
+use Mpietrucha\Support\Condition;
 use Illuminate\Support\Collection;
 use Mpietrucha\Storage\Contracts\AdapterInterface;
 
@@ -27,7 +28,7 @@ class Processor
 
     public function get(?string $key = null, ?Closure $map = null): mixed
     {
-        $entry = $this->adapter->get()->when($key, fn (Collection $storage) => $storage->get($key));
+        $entry = Condition::create($storage = $this->adapter->get())->add(fn () => $storage->get($key), $key)->resolve();
 
         $callback = Caller::create($map)->add(fn (string $entry) => Serializer::create($entry)->unserialize());
 
