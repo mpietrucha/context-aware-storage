@@ -20,7 +20,7 @@ class Processor
         return $this->get($key, fn (string $entry) => $entry);
     }
 
-    public function serializer(?string $key): null|Serializer|Collection
+    public function serializer(?string $key = null): null|Serializer|Collection
     {
         return $this->get($key, fn (string $entry) => Serializer::create($entry));
     }
