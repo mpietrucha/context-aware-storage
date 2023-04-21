@@ -29,13 +29,13 @@ class Processor
     {
         $entry = $this->adapter->get()->when($key, fn (Collection $storage) => $storage->get($key));
 
-        $caller = Caller::create($map)->add(fn (string $entry) => Serializer::create($entry)->unserialize())->get();
+        $callback = Caller::create($map)->add(fn (string $entry) => Serializer::create($entry)->unserialize());
 
         if ($entry instanceof Collection) {
-            return $entry->mapRecursive($caller);
+            return $entry->mapRecursive($callback->get());
         }
 
-        return $caller($entry);
+        return $callback->call($entry);
     }
 
     public function put(string $key, mixed $value): void
