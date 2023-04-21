@@ -27,7 +27,7 @@ class Processor
 
     public function get(?string $key = null, ?Closure $map = null): mixed
     {
-        $entry = $this->storage->get()->when($key, fn (Collection $storage) => $storage->get($key));
+        $entry = $this->adapter->get()->when($key, fn (Collection $storage) => $storage->get($key));
 
         $caller = Caller::create($map)->add(fn (string $entry) => Serializer::create($entry)->unserialize())->get();
 
