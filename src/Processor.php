@@ -31,9 +31,11 @@ class Processor
 
         $caller = Caller::create($map)->add(fn (string $entry) => Serializer::create($entry)->unserialize())->get();
 
-        return Condition::create(fn () => $caller($entry))
-            ->add(fn () => $entry->mapRecursive($caller), $entry instanceof Collection)
-            ->resolve();
+        if ($entry instanceof Collection) {
+            return $entry->mapRecursive($caller);
+        }
+
+        return $caller($entry);
     }
 
     public function put(string $key, mixed $value): void
