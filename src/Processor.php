@@ -18,19 +18,19 @@ class Processor
 
     public function raw(string $key = null): null|string|Collection
     {
-        return $this->get($key, fn (string $entry) => $entry);
+        return $this->get($key, fn (mixed $entry) => $entry);
     }
 
     public function serializer(?string $key = null): null|Serializer|Collection
     {
-        return $this->get($key, fn (string $entry) => Serializer::create($entry));
+        return $this->get($key, fn (mixed $entry) => Serializer::create($entry));
     }
 
     public function get(?string $key = null, ?Closure $map = null): mixed
     {
         $entry = Condition::create($storage = $this->adapter->get())->add(fn () => $storage->get($key), $key)->resolve();
 
-        $callback = Caller::create($map)->add(fn (string $entry) => Serializer::create($entry)->unserialize());
+        $callback = Caller::create($map)->add(fn (mixed $entry) => Serializer::create($entry)->unserialize());
 
         if ($entry instanceof Collection) {
             return $entry->mapRecursive($callback->get());
