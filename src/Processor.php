@@ -94,7 +94,7 @@ class Processor
             return;
         }
 
-        $this->delete();
+        $this->adapter->delete();
     }
 
     public function forgetIndex(string $key, int $index): void
@@ -110,11 +110,6 @@ class Processor
         }
 
         $this->forget($key);
-    }
-
-    public function delete(): void
-    {
-        $this->adapter->delete();
     }
 
     protected function enshureCollection(string $key, bool $default = false): Collection
