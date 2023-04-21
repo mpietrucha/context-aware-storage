@@ -10,7 +10,6 @@ use Mpietrucha\Storage\Adapter\File;
 use Mpietrucha\Support\Caller;
 use Mpietrucha\Support\Collection;
 use Mpietrucha\Support\Hash;
-use Mpietrucha\Support\Vendor;
 
 class Adapter
 {
@@ -38,11 +37,6 @@ class Adapter
         $this->table = $table;
 
         return $this;
-    }
-
-    public function vendor(): self
-    {
-        return $this->table(Vendor::create());
     }
 
     public function setBuildStrategy(Closure $builder): self
