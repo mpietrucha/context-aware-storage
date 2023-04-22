@@ -8,29 +8,23 @@ use Mpietrucha\Support\Serializer;
 use Mpietrucha\Support\Caller;
 use Mpietrucha\Support\Condition;
 use Illuminate\Support\Collection;
+use Mpietrucha\Storage\Contracts\ExpiryInterface;
 use Mpietrucha\Storage\Contracts\AdapterInterface;
+use Mpietrucha\Storage\Contracts\ProcessorInterface;
 
-class Processor
+class Processor implements ProcessorInterface
 {
-    public function __construct(protected AdapterInterface $adapter)
+    public function __construct(protected AdapterInterface $adapter, protected ?ExpiryInterface $expiry)
     {
     }
 
-    public function raw(string $key = null): null|string|Collection
+    public function serialized(?string $key = null, ?Closure $callback = null): null|string|Collection
     {
-        return $this->get($key, fn (mixed $entry) => $entry);
-    }
+        $this->expiry?->expired($key, $this->forget(...));
 
-    public function serializer(?string $key = null): null|Serializer|Collection
-    {
-        return $this->get($key, fn (mixed $entry) => Serializer::create($entry));
-    }
-
-    public function get(?string $key = null, ?Closure $map = null): mixed
-    {
         $entry = Condition::create($storage = $this->adapter->get())->add(fn () => $storage->get($key), $key)->resolve();
 
-        $callback = Caller::create($map)->add(fn (mixed $entry) => Serializer::create($entry)->unserialize());
+        $callback = Caller::create($callback)->add(fn (mixed $entry) => $entry);
 
         if ($entry instanceof Collection) {
             return $entry->mapRecursive($callback->get());
@@ -39,27 +33,39 @@ class Processor
         return $callback->call($entry);
     }
 
-    public function put(string $key, mixed $value): void
+    public function serializer(?string $key = null): null|Serializer|Collection
     {
+        return $this->serialized($key, fn (mixed $entry) => Serializer::create($entry));
+    }
+
+    public function get(?string $key = null): mixed
+    {
+        return $this->serialized($key, fn (mixed $entry) => Serializer::create($entry)->unserialize());
+    }
+
+    public function put(string $key, mixed $value, mixed $expires = null): void
+    {
+        $this->expiry?->expiry($key, $expires);
+
         $storage = $this->adapter->get()->put($key, Serializer::create($value)->serialize());
 
         $this->adapter->set($storage);
     }
 
-    public function append(string $key, mixed $value): void
+    public function append(string $key, mixed $value, mixed $expires = null): void
     {
         $current = $this->enshureCollection($key, true);
 
-        $this->put($key, $current->push($value));
+        $this->put($key, $current->push($value), $expires);
     }
 
-    public function appendUnique(string $key, mixed $value, Closure $callback): void
+    public function appendUnique(string $key, mixed $value, Closure $callback, mixed $expires = null): void
     {
         if ($this->existsUnique($key, $callback, $value)) {
             return;
         }
 
-        $this->append($key, $value);
+        $this->append($key, $value, $expires);
     }
 
     public function exists(string $key): bool
@@ -75,7 +81,7 @@ class Processor
 
         $current = $this->enshureCollection($key, true);
 
-        $this->put($temporaryKey = uniqid(), $value);
+        $this->put($temporaryKey = str()->uuid(), $value);
 
         $exists = $current->first(fn (mixed $entry) => $callback($entry, $temporaryValueEntry ??= $this->get($temporaryKey))) !== null;
 

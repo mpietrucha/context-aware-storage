@@ -23,7 +23,7 @@ class Adapter
 
     public function __construct(protected AdapterInterface $adapter = new File)
     {
-        $this->forwardTo(new Processor($adapter))->forwardsArgumentsTransformer(function (Collection $arguments) {
+        $this->forwardTo($adapter->processor())->forwardsArgumentsTransformer(function (Collection $arguments) {
             $arguments->get(0)->nullable()->string()->transform($this->build(...));
         });
     }
