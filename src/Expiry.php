@@ -48,7 +48,7 @@ class Expiry implements ExpiryInterface
             return;
         }
 
-        if (Carbon::createFromTimestamp($expiry)->isBefore(Carbon::now())) {
+        if (Carbon::createFromTimestamp($expiry)->isAfter(Carbon::now())) {
             return;
         }
 
