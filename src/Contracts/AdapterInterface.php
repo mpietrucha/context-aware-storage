@@ -7,8 +7,6 @@ use Mpietrucha\Storage\Contracts\ProcessorInterface;
 
 interface AdapterInterface
 {
-    public function disableExpiry(): self;
-
     public function processor(): ProcessorInterface;
 
     public function delete(): void;

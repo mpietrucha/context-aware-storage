@@ -5,15 +5,14 @@ namespace Mpietrucha\Storage\Adapter;
 use Mpietrucha\Support\Hash;
 use Mpietrucha\Support\Json;
 use Mpietrucha\Support\Macro;
-use Mpietrucha\Storage\Expiry;
-use Mpietrucha\Storage\Processor;
 use Illuminate\Support\Collection;
 use Mpietrucha\Support\Concerns\HasVendor;
 use Mpietrucha\Support\Concerns\HasFactory;
 use Mpietrucha\Storage\Contracts\AdapterInterface;
 use Mpietrucha\Storage\Contracts\ProcessorInterface;
+use Mpietrucha\Storage\Processor\SerializableProcessor;
 
-class File implements AdapterInterface
+class FileAdapter implements AdapterInterface
 {
     use HasVendor;
 
@@ -23,7 +22,7 @@ class File implements AdapterInterface
 
     protected string $directory;
 
-    public function __construct(protected ?Expiry $expiry = new Expiry)
+    public function __construct()
     {
         Macro::bootstrap();
 
@@ -39,23 +38,16 @@ class File implements AdapterInterface
         return $this;
     }
 
-    public function disableExpiry(): self
+    public function file(string $file): self
     {
-        $this->expiry = null;
+        $this->file = $file;
 
         return $this;
     }
 
     public function processor(): ProcessorInterface
     {
-        return new Processor($this, $this->expiry);
-    }
-
-    public function file(string $file): self
-    {
-        $this->file = $file;
-
-        return $this;
+        return new SerializableProcessor($this);
     }
 
     public function delete(): void

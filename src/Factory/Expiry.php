@@ -1,23 +1,17 @@
 <?php
 
-namespace Mpietrucha\Storage;
+namespace Mpietrucha\Storage\Factory;
 
-use Closure;
 use DateTime;
+use Closure;
 use Carbon\Carbon;
-use Mpietrucha\Support\Hash;
 use Mpietrucha\Support\Types;
-use Mpietrucha\Storage\Adapter\File;
-use Mpietrucha\Support\Concerns\HasVendor;
-use Mpietrucha\Support\Concerns\HasFactory;
 use Mpietrucha\Storage\Contracts\ExpiryInterface;
-use Mpietrucha\Storage\Contracts\AdapterInterface;
+use Mpietrucha\Storage\Adapter;
 
-class Expiry implements ExpiryInterface
+abstract class Expiry implements ExpiryInterface
 {
-    use HasVendor;
-
-    protected const FILE = 'internal_expiry_manager';
+    abstract protected function adapter(): Adapter;
 
     public function expiry(string $key, mixed $expires): void
     {
@@ -53,14 +47,5 @@ class Expiry implements ExpiryInterface
         }
 
         $callback($key);
-    }
-
-    protected function adapter(): Adapter
-    {
-        $adapter = File::create()->disableExpiry()->file(
-            Hash::md5($this->vendor(), self::FILE)
-        );
-
-        return Adapter::create($adapter);
     }
 }

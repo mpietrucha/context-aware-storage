@@ -1,62 +1,14 @@
 <?php
 
-namespace Mpietrucha\Storage;
+namespace Mpietrucha\Storage\Factory;
 
-use Exception;
 use Closure;
-use Mpietrucha\Support\Serializer;
-use Mpietrucha\Support\Caller;
-use Mpietrucha\Support\Pipeline;
-use Mpietrucha\Support\Condition;
+use Exception;
 use Illuminate\Support\Collection;
-use Mpietrucha\Storage\Contracts\ExpiryInterface;
-use Mpietrucha\Storage\Contracts\AdapterInterface;
 use Mpietrucha\Storage\Contracts\ProcessorInterface;
 
-class Processor implements ProcessorInterface
+abstract class Processor implements ProcessorInterface
 {
-    public function __construct(protected AdapterInterface $adapter, protected ?ExpiryInterface $expiry)
-    {
-    }
-
-    public function serialized(?string $key, Closure ...$callbacks): mixed
-    {
-        $this->expiry?->expired($key, $this->forget(...));
-
-        $entry = Condition::create($storage = $this->adapter->get())->add(fn () => $storage->get($key), $key)->resolve();
-
-        $callback = fn (mixed $entry) => Pipeline::create()->send($entry)->through($callbacks)->thenReturn();
-
-        if ($entry instanceof Collection) {
-            return $entry->mapRecursive($callback);
-        }
-
-        return $callback($entry);
-    }
-
-    public function serializer(?string $key, Closure ...$callbacks): mixed
-    {
-        return $this->serialized(function (mixed $entry, Closure $next) {
-            return $next(Serializer::create($entry));
-        }, ...$callbacks);
-    }
-
-    public function get(?string $key, Closure ...$callbacks): mixed
-    {
-        return $this->serializer($key, function (Serializer $serializer, Closure $next) {
-            return $next($serializer->unserialize());
-        }, ...$callbacks);
-    }
-
-    public function put(string $key, mixed $value, mixed $expires = null): void
-    {
-        $this->expiry?->expiry($key, $expires);
-
-        $storage = $this->adapter->get()->put($key, Serializer::create($value)->serialize());
-
-        $this->adapter->set($storage);
-    }
-
     public function append(string $key, mixed $value, mixed $expires = null): void
     {
         $current = $this->enshureCollection($key, true);
