@@ -33,7 +33,7 @@ class Adapter
         });
 
         $this->forwardsMethodTap(['get', 'raw'], function (?string $key = null) {
-            $this->expiry?->expired($key, $this->forget(...));
+            $this->expiry?->expired($key, $this->forward('forget', $key));
         });
 
         $this->forwardsMethodTap('put', function (string $key, mixed $value, mixed $expires = null) {
