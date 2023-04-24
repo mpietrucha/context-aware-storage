@@ -6,6 +6,7 @@ use Exception;
 use Closure;
 use Mpietrucha\Support\Serializer;
 use Mpietrucha\Support\Caller;
+use Mpietrucha\Support\Pipeline;
 use Mpietrucha\Support\Condition;
 use Illuminate\Support\Collection;
 use Mpietrucha\Storage\Contracts\ExpiryInterface;
@@ -18,29 +19,33 @@ class Processor implements ProcessorInterface
     {
     }
 
-    public function serialized(?string $key = null, ?Closure $callback = null): null|string|Collection
+    public function serialized(?string $key, Closure ...$callbacks): mixed
     {
         $this->expiry?->expired($key, $this->forget(...));
 
         $entry = Condition::create($storage = $this->adapter->get())->add(fn () => $storage->get($key), $key)->resolve();
 
-        $callback = Caller::create($callback)->add(fn (mixed $entry) => $entry);
+        $callback = fn (mixed $entry) => Pipeline::create()->send($entry)->through($callbacks)->thenReturn();
 
         if ($entry instanceof Collection) {
-            return $entry->mapRecursive($callback->get());
+            return $entry->mapRecursive($callback);
         }
 
-        return $callback->call($entry);
+        return $callback($entry);
     }
 
-    public function serializer(?string $key = null): null|Serializer|Collection
+    public function serializer(?string $key, Closure ...$callbacks): mixed
     {
-        return $this->serialized($key, fn (mixed $entry) => Serializer::create($entry));
+        return $this->serialized(function (mixed $entry, Closure $next) {
+            return $next(Serializer::create($entry));
+        }, ...$callbacks);
     }
 
-    public function get(?string $key = null): mixed
+    public function get(?string $key, Closure ...$callbacks): mixed
     {
-        return $this->serialized($key, fn (mixed $entry) => Serializer::create($entry)->unserialize());
+        return $this->serializer($key, function (Serializer $serializer, Closure $next) {
+            return $next($serializer->unserialize());
+        }, ...$callbacks);
     }
 
     public function put(string $key, mixed $value, mixed $expires = null): void
