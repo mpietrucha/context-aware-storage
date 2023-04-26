@@ -2,33 +2,27 @@
 
 namespace Mpietrucha\Storage\Adapter;
 
-use Mpietrucha\Support\Hash;
-use Mpietrucha\Support\Json;
 use Mpietrucha\Support\Macro;
-use Illuminate\Support\Collection;
-use Mpietrucha\Support\Concerns\HasVendor;
-use Mpietrucha\Support\Concerns\HasFactory;
-use Mpietrucha\Storage\Contracts\AdapterInterface;
-use Mpietrucha\Storage\Contracts\ProcessorInterface;
+use Mpietrucha\Support\Hash;
+use Mpietrucha\Support\File;
+use Illuminate\Support\Enumerable;
+use Mpietrucha\Storage\Factory\Adapter;
 use Mpietrucha\Storage\Processor\SerializableProcessor;
+use Mpietrucha\Storage\Contracts\ProcessorInterface;
 
-class FileAdapter implements AdapterInterface
+class FileAdapter extends Adapter
 {
-    use HasVendor;
-
-    use HasFactory;
-
     protected string $file;
 
     protected string $directory;
+
+    protected const DEFAULT_SHARED_FILE = 'context_aware_storage_default';
 
     public function __construct()
     {
         Macro::bootstrap();
 
-        $this->directory(sys_get_temp_dir())->file(
-            Hash::md5($this->vendor())
-        );
+        $this->directory(sys_get_temp_dir())->file(self::DEFAULT_SHARED_FILE);
     }
 
     public function directory(string $directory): self
@@ -38,11 +32,20 @@ class FileAdapter implements AdapterInterface
         return $this;
     }
 
-    public function file(string $file): self
+    public function file(string ...$files): self
     {
-        $this->file = $file;
+        $this->file = Hash::md5(...$files);
 
         return $this;
+    }
+
+    public function table(?string $table): ?string
+    {
+        if ($table) {
+            $this->file($this->file, $table);
+        }
+
+        return null;
     }
 
     public function processor(): ProcessorInterface
@@ -52,36 +55,21 @@ class FileAdapter implements AdapterInterface
 
     public function delete(): void
     {
-        if (! $this->exists()) {
-            return;
-        }
-
-        unlink($this->path());
+        File::delete($this->path());
     }
 
-    public function get(): Collection
+    public function get(): Enumerable
     {
-        if (! $this->exists()) {
-            return collect();
-        }
-
-        return Json::decodeToCollection(
-            file_get_contents($this->path())
-        );
+        return File::lazyCollection($this->path());
     }
 
-    public function set(Collection $storage): void
+    public function set(Enumerable $storage): void
     {
-        file_put_contents($this->path(), Json::encode($storage));
+        File::putLazyCollection($this->path(), $storage);
     }
 
     protected function path(): string
     {
         return collect([$this->directory, $this->file])->toDirectory();
-    }
-
-    protected function exists(): bool
-    {
-        return file_exists($this->path());
     }
 }

@@ -2,20 +2,27 @@
 
 namespace Mpietrucha\Storage\Factory;
 
-use DateTime;
 use Closure;
+use DateTime;
 use Carbon\Carbon;
 use Mpietrucha\Support\Types;
-use Mpietrucha\Storage\Contracts\ExpiryInterface;
 use Mpietrucha\Storage\Adapter;
+use Mpietrucha\Storage\Concerns\HasTable;
+use Mpietrucha\Storage\Contracts\ExpiryInterface;
 
 abstract class Expiry implements ExpiryInterface
 {
+    use HasTable;
+
     abstract protected function adapter(): Adapter;
 
     public function expiry(string $key, mixed $expires): void
     {
         if (! $expires) {
+            return;
+        }
+
+        if ($this->adapter()->exists($key)) {
             return;
         }
 
@@ -46,6 +53,25 @@ abstract class Expiry implements ExpiryInterface
             return;
         }
 
+        $this->adapter()->forget($key);
+
         $callback($key);
+    }
+
+    protected function events(string $key): bool
+    {
+        if (! $this->adapter->exists($key)) {
+            return false;
+        }
+
+        if ($this->onExistsLeave) {
+            return true;
+        }
+
+        if ($this->onExistsDelete) {
+            $this->adapter->forget($key);
+        }
+
+        return true;
     }
 }

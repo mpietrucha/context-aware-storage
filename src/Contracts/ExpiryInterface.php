@@ -4,7 +4,7 @@ namespace Mpietrucha\Storage\Contracts;
 
 use Closure;
 
-interface ExpiryInterface
+interface ExpiryInterface extends TableInterface
 {
     public function expiry(string $key, mixed $expires): void;
 

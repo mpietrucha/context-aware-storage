@@ -3,19 +3,22 @@
 namespace Mpietrucha\Storage\Factory;
 
 use Illuminate\Support\Collection;
+use Mpietrucha\Storage\Concerns\HasTable;
 use Mpietrucha\Storage\Contracts\TransformerInterface;
 
 abstract class Transformer implements TransformerInterface
 {
-    abstract protected function build(?string $table, ?string $key): ?Collection;
+    use HasTable;
 
-    public function transform(?string $table, ?string $key): ?string
+    abstract protected function build(?string $key): ?Collection;
+
+    public function transform(?string $key): ?string
     {
-        return $this->build($table, $key)?->toDotWord();
+        return $this->build($key)?->toDotWord();
     }
 
-    public function is(?string $table, ?string $key): bool
+    public function is(?string $key): bool
     {
-        return $this->build($table, $key)?->first() === $table;
+        return $this->build($key)?->first() === $this->table;
     }
 }

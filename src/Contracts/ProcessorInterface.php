@@ -3,6 +3,7 @@
 namespace Mpietrucha\Storage\Contracts;
 
 use Closure;
+use Illuminate\Support\Enumerable;
 use Mpietrucha\Storage\Contracts\AdapterInterface;
 
 interface ProcessorInterface

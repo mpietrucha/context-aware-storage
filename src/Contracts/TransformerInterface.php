@@ -2,9 +2,9 @@
 
 namespace Mpietrucha\Storage\Contracts;
 
-interface TransformerInterface
+interface TransformerInterface extends TableInterface
 {
-    public function transform(?string $table, ?string $key): ?string;
+    public function transform(?string $key): ?string;
 
-    public function is(?string $table, ?string $key): bool;
+    public function is(?string $key): bool;
 }
