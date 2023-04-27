@@ -32,7 +32,7 @@ class Transaction
 
     public function commit(): mixed
     {
-        $this->adapter->set($this->forwardsTo->raw());
+        $this->adapter->set($this->forwardTo->raw());
 
         return $this->makeReturn();
     }

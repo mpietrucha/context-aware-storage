@@ -39,15 +39,15 @@ class Adapter
     {
         $this->forwardTo(fn () => $adapter->processor());
 
-        $this->forwardsArgumentsTransformer(function (Collection $arguments) {
+        $this->forwardArgumentsTransformer(function (Collection $arguments) {
             $arguments->get(0)->nullable()->string()->transform($this->transformer->transform(...));
         });
 
-        $this->forwardsMethodTap(self::ADAPTER_GETTERS, function (?string $key = null) {
-            $this->expiry?->expired($key, $this->forwardsTo->forget(...));
+        $this->forwardMethodTap(self::ADAPTER_GETTERS, function (?string $key = null) {
+            $this->expiry?->expired($key, $this->forwardTo->forget(...));
         });
 
-        $this->forwardsMethodTap(self::ADAPTER_SETTERS, function (string $key, mixed $value, mixed $expires = null) {
+        $this->forwardMethodTap(self::ADAPTER_SETTERS, function (string $key, mixed $value, mixed $expires = null) {
             $this->expiry?->expiry($key, $expires);
         });
     }
