@@ -19,7 +19,7 @@ class Transaction
 
     use ForwardsCalls;
 
-    public function __construct(protected AdapterInterface $adapter, ?string $table)
+    public function __construct(protected AdapterInterface $adapter, array $expiryTapperBuilder, ?string $table)
     {
         if ($adapter instanceof VoidAdapter) {
             throw new Exception('Cannot create transaction with VoidAdapter');
@@ -27,7 +27,7 @@ class Transaction
 
         $this->forwardTo(
             Adapter::create(VoidAdapter::create($adapter))->stale()->table($table)
-        );
+        )->forwardMethodTap(...$expiryTapperBuilder);
     }
 
     public function commit(): mixed

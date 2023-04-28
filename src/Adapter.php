@@ -27,6 +27,8 @@ class Adapter
 
     protected ?self $transaction = null;
 
+    protected ?array $expiryTapperBuilder = null;
+
     protected const ADAPTER_SETTERS  = ['put'];
 
     protected const ADAPTER_GETTERS = ['get', 'raw'];
@@ -47,9 +49,10 @@ class Adapter
             $this->expiry?->expired($key, $this->forwardTo->forget(...));
         });
 
-        $this->forwardMethodTap(self::ADAPTER_SETTERS, function (string $key, mixed $value, mixed $expires = null) {
-            $this->expiry?->expiry($key, $expires);
-        });
+        $this->forwardMethodTap(...$this->expiryTapperBuilder ??= [
+            self::ADAPTER_SETTERS,
+            fn (string $key, mixed $value, mixed $expires = null) => $this->expiry?->expiry($key, $expires);
+        ]);
     }
 
     public function adapter(Closure|AdapterInterface $adapter): self
@@ -110,7 +113,7 @@ class Adapter
 
     public function transaction(?Closure $callback = null): Transaction|self
     {
-        $transaction = Transaction::create($this->adapter, $this->table)->willReturnTo(fn () => $this);
+        $transaction = Transaction::create($this->adapter, $this->expiryTapperBuilder, $this->table)->willReturnTo(fn () => $this);
 
         if ($callback) {
             value($callback->bindTo($transaction));
