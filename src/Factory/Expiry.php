@@ -3,8 +3,9 @@
 namespace Mpietrucha\Storage\Factory;
 
 use Closure;
-use DateTime;
+use Exception;
 use Carbon\Carbon;
+use DateTimeInterface;
 use Mpietrucha\Support\Types;
 use Mpietrucha\Storage\Adapter;
 use Mpietrucha\Storage\Concerns\HasTable;
@@ -14,7 +15,14 @@ abstract class Expiry implements ExpiryInterface
 {
     use HasTable;
 
+    protected ?Closure $onExpiresResolved = null;
+
     abstract protected function adapter(): Adapter;
+
+    public function onExpiresResolved(Closure $callback): void
+    {
+        $this->onExpiresResolved = $callback;
+    }
 
     public function expiry(string $key, mixed $expires): void
     {
@@ -26,17 +34,7 @@ abstract class Expiry implements ExpiryInterface
             return;
         }
 
-        if ($expires instanceof DateTime) {
-            $this->adapter()->put($key, $expires->getTimestamp());
-
-            return;
-        }
-
-        if (! Types::array($expires)) {
-            $expires = [$expires, 'minutes'];
-        }
-
-        $this->adapter()->put($key, Carbon::now()->add(...$expires)->getTimestamp());
+        $this->adapter()->put($key, $this->resolve($expires)->getTimestamp());
     }
 
     public function expired(?string $key, Closure $callback): void
@@ -58,20 +56,24 @@ abstract class Expiry implements ExpiryInterface
         $callback($key);
     }
 
-    protected function events(string $key): bool
+    protected function resolve(mixed $expires): Carbon
     {
-        if (! $this->adapter->exists($key)) {
-            return false;
+        if (Types::int($expires) || Types::string($expires)) {
+            return $this->timestamp([$expires, 'minutes']);
         }
 
-        if ($this->onExistsLeave) {
-            return true;
+        if (Types::array($expires)) {
+            return $this->timestamp(Carbon::now()->add(...$expires));
         }
 
-        if ($this->onExistsDelete) {
-            $this->adapter->forget($key);
+        if ($expires instanceof DateTimeInterface && ! $expires instanceof Carbon) {
+            return $this->timestamp($expires->getTimestamp());
         }
 
-        return true;
+        if (! $expires instanceof Carbon) {
+            throw new Exception('Expected expires values are array[int, duration], int[minutes] or DateTimeInterface object');
+        }
+
+        return value($this->onExpiresResolved, $expires) ?? $expires;
     }
 }
