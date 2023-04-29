@@ -59,15 +59,15 @@ abstract class Expiry implements ExpiryInterface
     protected function resolve(mixed $expires): Carbon
     {
         if (Types::int($expires) || Types::string($expires)) {
-            return $this->timestamp([$expires, 'minutes']);
+            return $this->resolve([$expires, 'minutes']);
         }
 
         if (Types::array($expires)) {
-            return $this->timestamp(Carbon::now()->add(...$expires));
+            return $this->resolve(Carbon::now()->add(...$expires));
         }
 
         if ($expires instanceof DateTimeInterface && ! $expires instanceof Carbon) {
-            return $this->timestamp($expires->getTimestamp());
+            return $this->resolve($expires->getTimestamp());
         }
 
         if (! $expires instanceof Carbon) {
