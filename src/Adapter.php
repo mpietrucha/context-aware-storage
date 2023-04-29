@@ -51,7 +51,7 @@ class Adapter
 
         $this->forwardMethodTap(...$this->expiryTapperBuilder ??= [
             self::ADAPTER_SETTERS,
-            fn (string $key, mixed $value, mixed $expires = null) => $this->expiry?->expiry($key, $expires);
+            fn (string $key, mixed $value, mixed $expires = null) => $this->expiry?->expiry($key, $expires)
         ]);
     }
 
