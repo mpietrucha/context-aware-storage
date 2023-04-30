@@ -76,7 +76,7 @@ class CarbonDateResolver implements ExpiryDateResolverInterface
             throw new Exception('Duration indictor must be of type string');
         }
 
-        return Carbon::now()->add($duration, $indictor);
+        return Carbon::now()->add($duration, $indicator);
     }
 
     protected function validDuration(mixed $duration): bool
