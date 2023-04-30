@@ -19,11 +19,6 @@ abstract class Expiry implements ExpiryInterface
 
     abstract protected function adapter(): Adapter;
 
-    public function onExpiresResolved(Closure $callback): void
-    {
-        $this->onExpiresResolved = $callback;
-    }
-
     public function expiry(string $key, mixed $expires): void
     {
         if (! $expires) {
@@ -56,6 +51,11 @@ abstract class Expiry implements ExpiryInterface
         $callback($key);
     }
 
+    public function onExpiresResolved(Closure $callback): void
+    {
+        $this->onExpiresResolved = $callback;
+    }
+
     protected function resolve(mixed $expires): Carbon
     {
         if (Types::int($expires) || Types::string($expires)) {
@@ -67,7 +67,7 @@ abstract class Expiry implements ExpiryInterface
         }
 
         if ($expires instanceof DateTimeInterface && ! $expires instanceof Carbon) {
-            return $this->resolve($expires->getTimestamp());
+            return $this->resolve(new Carbon($expires));
         }
 
         if (! $expires instanceof Carbon) {
