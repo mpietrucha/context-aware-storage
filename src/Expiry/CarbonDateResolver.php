@@ -37,7 +37,6 @@ class CarbonDateResolver implements ExpiryDateResolverInterface
 
     public function expired(): bool
     {
-        dd($this->expiry);
         return Rescue::create(
             fn () => Carbon::createFromTimestamp($this->expiry)->isAfter(Carbon::now())
         )->call(false);
