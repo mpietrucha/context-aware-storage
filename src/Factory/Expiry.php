@@ -13,7 +13,7 @@ abstract class Expiry implements ExpiryInterface
 {
     use HasTable;
 
-    protected bool $override = false;
+    protected bool $overrideOnExists = false;
 
     protected ?Closure $onExpiresResolved = null;
 
@@ -29,9 +29,9 @@ abstract class Expiry implements ExpiryInterface
         $this->onExpiresResolved = $callback;
     }
 
-    public function override(bool $mode = true): void
+    public function overrideOnExists(bool $mode = true): void
     {
-        $this->override = $mode;
+        $this->overrideOnExists = $mode;
     }
 
     public function expiry(string $key, mixed $expires): void
@@ -40,7 +40,7 @@ abstract class Expiry implements ExpiryInterface
             return;
         }
 
-        if ($this->adapter()->exists($key) && ! $this->override) {
+        if ($this->adapter()->exists($key) && ! $this->overrideOnExists) {
             return;
         }
 
