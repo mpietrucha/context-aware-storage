@@ -3,6 +3,7 @@
 namespace Mpietrucha\Storage\Expiry;
 
 use Exception;
+use Closure;
 use Mpietrucha\Support\Types;
 use Mpietrucha\Support\Rescue;
 use Mpietrucha\Support\Condition;
