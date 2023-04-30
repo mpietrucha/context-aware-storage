@@ -13,6 +13,8 @@ abstract class Expiry implements ExpiryInterface
 {
     use HasTable;
 
+    protected bool $override = false;
+
     protected ?Closure $onExpiresResolved = null;
 
     abstract protected function adapter(): Adapter;
@@ -22,13 +24,23 @@ abstract class Expiry implements ExpiryInterface
         return new CarbonDateResolver($expires);
     }
 
+    public function onExpiresResolved(Closure $callback): void
+    {
+        $this->onExpiresResolved = $callback;
+    }
+
+    public function override(bool $mode = true): void
+    {
+        $this->override = $mode;
+    }
+
     public function expiry(string $key, mixed $expires): void
     {
         if (! $expires) {
             return;
         }
 
-        if ($this->adapter()->exists($key)) {
+        if ($this->adapter()->exists($key) && ! $this->override) {
             return;
         }
 
@@ -52,10 +64,5 @@ abstract class Expiry implements ExpiryInterface
         $this->adapter()->forget($key);
 
         $callback($key);
-    }
-
-    public function onExpiresResolved(Closure $callback): void
-    {
-        $this->onExpiresResolved = $callback;
     }
 }

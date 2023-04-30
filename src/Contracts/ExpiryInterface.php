@@ -14,4 +14,6 @@ interface ExpiryInterface extends TableInterface
     public function expired(?string $key, Closure $callback): void;
 
     public function onExpiresResolved(Closure $callback): void;
+
+    public function override(bool $mode = true): void;
 }
