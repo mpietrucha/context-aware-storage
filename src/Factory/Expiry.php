@@ -5,8 +5,9 @@ namespace Mpietrucha\Storage\Factory;
 use Closure;
 use Mpietrucha\Storage\Adapter;
 use Mpietrucha\Storage\Concerns\HasTable;
+use Mpietrucha\Storage\Expiry\CarbonDateResolver;
 use Mpietrucha\Storage\Contracts\ExpiryInterface;
-use Mpietrucha\Storage\Resolver\ExpiryDateResolver;
+use Mpietrucha\Storage\Contracts\ExpiryDateResolverInterface;
 
 abstract class Expiry implements ExpiryInterface
 {
@@ -15,6 +16,11 @@ abstract class Expiry implements ExpiryInterface
     protected ?Closure $onExpiresResolved = null;
 
     abstract protected function adapter(): Adapter;
+
+    public function resolver(mixed $expires): ExpiryDateResolverInterface
+    {
+        return new CarbonDateResolver($expires);
+    }
 
     public function expiry(string $key, mixed $expires): void
     {
@@ -26,7 +32,7 @@ abstract class Expiry implements ExpiryInterface
             return;
         }
 
-        $this->adapter()->put($key, ExpiryDateResolver::create($expiry)->encode($this->onExpiresResolved));
+        $this->adapter()->put($key, $this->resolver($expires)->encode($this->onExpiresResolved));
     }
 
     public function expired(?string $key, Closure $callback): void
@@ -35,11 +41,11 @@ abstract class Expiry implements ExpiryInterface
             return;
         }
 
-        if (! $expiry = $this->adapter()->get($key)) {
+        if (! $expires = $this->adapter()->get($key)) {
             return;
         }
 
-        if (! ExpiryDateResolver::create($expiry)->expired()) {
+        if (! $this->resolver($expires)->expired()) {
             return;
         }
 
