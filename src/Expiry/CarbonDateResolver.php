@@ -59,6 +59,6 @@ class CarbonDateResolver implements ExpiryDateResolverInterface
             return $expires;
         }
 
-        throw new Exception('Expected expires values are array[duration, indicator], int|string[minutes], Carbon, or DateTimeInterface or self instance')
+        throw new Exception('Expected expires values are array[duration, indicator], int|string[minutes], Carbon, or DateTimeInterface or self instance');
     }
 }
