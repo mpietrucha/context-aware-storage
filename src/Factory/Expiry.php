@@ -3,13 +3,10 @@
 namespace Mpietrucha\Storage\Factory;
 
 use Closure;
-use Exception;
-use Carbon\Carbon;
-use DateTimeInterface;
-use Mpietrucha\Support\Types;
 use Mpietrucha\Storage\Adapter;
 use Mpietrucha\Storage\Concerns\HasTable;
 use Mpietrucha\Storage\Contracts\ExpiryInterface;
+use Mpietrucha\Storage\Resolver\ExpiryDateResolver;
 
 abstract class Expiry implements ExpiryInterface
 {
@@ -29,7 +26,7 @@ abstract class Expiry implements ExpiryInterface
             return;
         }
 
-        $this->adapter()->put($key, $this->resolve($expires)->getTimestamp());
+        $this->adapter()->put($key, ExpiryDateResolver::create($expiry)->encode($this->onExpiresResolved));
     }
 
     public function expired(?string $key, Closure $callback): void
@@ -42,7 +39,7 @@ abstract class Expiry implements ExpiryInterface
             return;
         }
 
-        if (Carbon::createFromTimestamp($expiry)->isAfter(Carbon::now())) {
+        if (! ExpiryDateResolver::create($expiry)->expired()) {
             return;
         }
 
@@ -54,26 +51,5 @@ abstract class Expiry implements ExpiryInterface
     public function onExpiresResolved(Closure $callback): void
     {
         $this->onExpiresResolved = $callback;
-    }
-
-    protected function resolve(mixed $expires): Carbon
-    {
-        if (Types::int($expires) || Types::string($expires)) {
-            return $this->resolve([$expires, 'minutes']);
-        }
-
-        if (Types::array($expires)) {
-            return $this->resolve(Carbon::now()->add(...$expires));
-        }
-
-        if ($expires instanceof DateTimeInterface && ! $expires instanceof Carbon) {
-            return $this->resolve(new Carbon($expires));
-        }
-
-        if (! $expires instanceof Carbon) {
-            throw new Exception('Expected expires values are array[int, duration], int[minutes] or DateTimeInterface object');
-        }
-
-        return value($this->onExpiresResolved, $expires) ?? $expires;
     }
 }
