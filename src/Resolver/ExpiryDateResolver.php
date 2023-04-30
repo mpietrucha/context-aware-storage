@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Mpietrucha\Support\Types;
 use Mpietrucha\Support\Rescue;
+use Mpietrucha\Support\Condition;
 use Mpietrucha\Support\Concerns\HasFactory;
 
 class ExpiryDateResolver
@@ -22,9 +23,10 @@ class ExpiryDateResolver
 
     public function encode(?Closure $resolver = null): int
     {
-        $date = $this->resolve();
-
-        return (value($resolver, $date) ?? $date)->getTimestamp();
+        return Condition::create($date = $this->resolve())
+            ->add(fn () => value($date), ! Types::null($resolver))
+            ->resolve()
+            ->getTimestamp();
     }
 
     public function expired(): bool
