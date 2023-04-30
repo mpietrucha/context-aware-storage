@@ -4,6 +4,7 @@ namespace Mpietrucha\Storage\Expiry;
 
 use Exception;
 use Closure;
+use Carbon\Carbon;
 use Mpietrucha\Support\Types;
 use Mpietrucha\Support\Rescue;
 use Mpietrucha\Support\Condition;
@@ -49,7 +50,7 @@ class CarbonDateResolver implements ExpiryDateResolverInterface
         }
 
         if (Types::array($this->expires)) {
-            return $this->resolveFromArray($resolver);
+            return $this->resolveFromArray($this->expires);
         }
 
         if ($this->validDuration($this->expires)) {
@@ -61,5 +62,25 @@ class CarbonDateResolver implements ExpiryDateResolverInterface
         }
 
         throw new Exception('Expected expires values are array[duration, indicator], int|string[minutes], Carbon, or DateTimeInterface or self instance');
+    }
+
+    protected function resolveFromArray(array $expires): ?Carbon
+    {
+        [$duration, $indicator] = $expires;
+
+        if (! $this->validDuration($duration)) {
+            throw new Exception('Duration must be of type string or int');
+        }
+
+        if (! Types::string($indicator)) {
+            throw new Exception('Duration indictor must be of type string');
+        }
+
+        return Carbon::now()->add($duration, $indictor);
+    }
+
+    protected function validDuration(mixed $duration): bool
+    {
+        return Types::int($duration) || Types::string($duration);
     }
 }
