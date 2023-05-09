@@ -81,7 +81,7 @@ class CarbonDateResolver implements ExpiryDateResolverInterface
         }
 
         return Carbon::now()->add(
-            $this->sleep($duration, $indicator)->sleepDuration()
+            $this->sleep($duration, $indicator)->duration()
         );
     }
 
