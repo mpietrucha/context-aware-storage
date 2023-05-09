@@ -5,13 +5,17 @@ namespace Mpietrucha\Storage\Expiry;
 use Exception;
 use Closure;
 use Carbon\Carbon;
+use DateTimeInterface;
 use Mpietrucha\Support\Types;
 use Mpietrucha\Support\Rescue;
 use Mpietrucha\Support\Condition;
+use Mpietrucha\Support\Concerns\Sleepable;
 use Mpietrucha\Storage\Contracts\ExpiryDateResolverInterface;
 
 class CarbonDateResolver implements ExpiryDateResolverInterface
 {
+    use Sleepable;
+
     protected string $indicator;
 
     protected const DEFAULT_INDICATOR = 'minutes';
@@ -53,18 +57,18 @@ class CarbonDateResolver implements ExpiryDateResolverInterface
             return $this->resolveFromArray($this->expires);
         }
 
-        if ($this->validDuration($this->expires)) {
-            return $this->resolve([$this->expires, self::DEFAULT_INDICATOR]);
+        if ($this->validDuration($this->expires) && $indicator = $this->indicator) {
+            return $this->resolve([$this->expires, $indicator]);
         }
 
         if ($expires = $this->resolveFromDateTimeInterface($this->expires)) {
             return $expires;
         }
 
-        throw new Exception('Expected expires values are array[duration, indicator], int|string[minutes], Carbon, or DateTimeInterface or self instance');
+        throw new Exception("Expected expires values are array[duration, indicator], int|string[$indicator], Carbon, or DateTimeInterface or self instance");
     }
 
-    protected function resolveFromArray(array $expires): ?Carbon
+    protected function resolveFromArray(array $expires): Carbon
     {
         [$duration, $indicator] = $expires;
 
@@ -76,7 +80,18 @@ class CarbonDateResolver implements ExpiryDateResolverInterface
             throw new Exception('Duration indictor must be of type string');
         }
 
-        return Carbon::now()->add($duration, $indicator);
+        return Carbon::now()->add(
+            $this->sleep($duration, $indicator)->sleepDuration()
+        );
+    }
+
+    protected function resolveFromDateTimeInterface(): ?Carbon
+    {
+        if (! $this->expires instanceof DateTimeInterface) {
+            return null;
+        }
+
+        return Carbon::createFromTimestamp($this->expires->getTimestamp());
     }
 
     protected function validDuration(mixed $duration): bool
