@@ -3,7 +3,7 @@
 namespace Mpietrucha\Storage\Adapter;
 
 use Mpietrucha\Support\Macro;
-use Mpietrucha\Support\Hash;
+use Mpietrucha\Support\Key;
 use Mpietrucha\Support\File;
 use Illuminate\Support\Enumerable;
 use Mpietrucha\Storage\Factory\Adapter;
@@ -22,7 +22,7 @@ class FileAdapter extends Adapter
     {
         Macro::bootstrap();
 
-        $this->directory(sys_get_temp_dir())->file(self::DEFAULT_SHARED_FILE);
+        $this->directory(File::temporaryDirectory())->file(self::DEFAULT_SHARED_FILE);
     }
 
     public function directory(string $directory): self
@@ -34,7 +34,7 @@ class FileAdapter extends Adapter
 
     public function file(string ...$files): self
     {
-        $this->file = Hash::md5(...$files);
+        $this->file = Key::create($files)->hash();
 
         return $this;
     }
