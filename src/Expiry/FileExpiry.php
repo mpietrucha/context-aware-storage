@@ -4,7 +4,7 @@ namespace Mpietrucha\Storage\Expiry;
 
 use Mpietrucha\Storage\Adapter;
 
-class FileExpiry extends AbstractExpiry
+class FileExpiry extends Expiry
 {
     protected const FILE = 'internal_expiry_manager';
 

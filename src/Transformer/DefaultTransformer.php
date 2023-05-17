@@ -5,7 +5,7 @@ namespace Mpietrucha\Storage\Transformer;
 use Mpietrucha\Support\Hash;
 use Illuminate\Support\Collection;
 
-class DefaultTransformer extends AbstractTransformer
+class DefaultTransformer extends Transformer
 {
     public function build(?string $key): ?Collection
     {

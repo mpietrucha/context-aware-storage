@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 use Mpietrucha\Storage\Contracts\AdapterInterface;
 use Mpietrucha\Storage\Contracts\ProcessorInterface;
 
-abstract class AbstractProcessor implements ProcessorInterface
+abstract class Processor implements ProcessorInterface
 {
     public function __construct(protected AdapterInterface $adapter)
     {

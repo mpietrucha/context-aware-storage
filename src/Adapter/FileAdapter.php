@@ -9,7 +9,7 @@ use Illuminate\Support\Enumerable;
 use Mpietrucha\Storage\Processor\SerializableProcessor;
 use Mpietrucha\Storage\Contracts\ProcessorInterface;
 
-class FileAdapter extends AbstractAdapter
+class FileAdapter extends Adapter
 {
     protected string $file;
 

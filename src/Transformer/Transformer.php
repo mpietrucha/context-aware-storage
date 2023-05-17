@@ -6,7 +6,7 @@ use Illuminate\Support\Collection;
 use Mpietrucha\Storage\Concerns\HasTable;
 use Mpietrucha\Storage\Contracts\TransformerInterface;
 
-abstract class AbstractTransformer implements TransformerInterface
+abstract class Transformer implements TransformerInterface
 {
     use HasTable;
 

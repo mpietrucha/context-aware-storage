@@ -9,7 +9,7 @@ use Mpietrucha\Storage\Expiry\CarbonDateResolver;
 use Mpietrucha\Storage\Contracts\ExpiryInterface;
 use Mpietrucha\Storage\Contracts\ExpiryDateResolverInterface;
 
-abstract class AbstractExpiry implements ExpiryInterface
+abstract class Expiry implements ExpiryInterface
 {
     use HasTable;
 

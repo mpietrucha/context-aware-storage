@@ -8,7 +8,7 @@ use Illuminate\Support\LazyCollection;
 use Mpietrucha\Storage\Contracts\AdapterInterface;
 use Mpietrucha\Storage\Contracts\ProcessorInterface;
 
-class VoidAdapter extends AbstractAdapter
+class VoidAdapter extends Adapter
 {
     protected ?Enumerable $storage = null;
 

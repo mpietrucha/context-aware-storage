@@ -4,7 +4,7 @@ namespace Mpietrucha\Storage\Processor;
 
 use Mpietrucha\Support\Serializer;
 
-class SerializableProcessor extends AbstractProcessor
+class SerializableProcessor extends Processor
 {
     public function get(?string $key = null): mixed
     {
