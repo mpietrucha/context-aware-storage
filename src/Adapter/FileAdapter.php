@@ -6,11 +6,10 @@ use Mpietrucha\Support\Macro;
 use Mpietrucha\Support\Key;
 use Mpietrucha\Support\File;
 use Illuminate\Support\Enumerable;
-use Mpietrucha\Storage\Factory\Adapter;
 use Mpietrucha\Storage\Processor\SerializableProcessor;
 use Mpietrucha\Storage\Contracts\ProcessorInterface;
 
-class FileAdapter extends Adapter
+class FileAdapter extends AbstractAdapter
 {
     protected string $file;
 

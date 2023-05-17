@@ -4,12 +4,11 @@ namespace Mpietrucha\Storage\Adapter;
 
 use Exception;
 use Illuminate\Support\Enumerable;
-use Mpietrucha\Storage\Factory\Adapter;
 use Illuminate\Support\LazyCollection;
 use Mpietrucha\Storage\Contracts\AdapterInterface;
 use Mpietrucha\Storage\Contracts\ProcessorInterface;
 
-class VoidAdapter extends Adapter
+class VoidAdapter extends AbstractAdapter
 {
     protected ?Enumerable $storage = null;
 

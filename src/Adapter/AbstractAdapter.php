@@ -1,11 +1,11 @@
 <?php
 
-namespace Mpietrucha\Storage\Factory;
+namespace Mpietrucha\Storage\Adapter;
 
 use Mpietrucha\Support\Concerns\HasFactory;
 use Mpietrucha\Storage\Contracts\AdapterInterface;
 
-abstract class Adapter implements AdapterInterface
+abstract class AbstractAdapter implements AdapterInterface
 {
     use HasFactory;
 }

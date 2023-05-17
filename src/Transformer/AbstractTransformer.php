@@ -1,12 +1,12 @@
 <?php
 
-namespace Mpietrucha\Storage\Factory;
+namespace Mpietrucha\Storage\Transformer;
 
 use Illuminate\Support\Collection;
 use Mpietrucha\Storage\Concerns\HasTable;
 use Mpietrucha\Storage\Contracts\TransformerInterface;
 
-abstract class Transformer implements TransformerInterface
+abstract class AbstractTransformer implements TransformerInterface
 {
     use HasTable;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Mpietrucha\Storage\Factory;
+namespace Mpietrucha\Storage\Expiry;
 
 use Closure;
 use Mpietrucha\Storage\Adapter;
@@ -9,7 +9,7 @@ use Mpietrucha\Storage\Expiry\CarbonDateResolver;
 use Mpietrucha\Storage\Contracts\ExpiryInterface;
 use Mpietrucha\Storage\Contracts\ExpiryDateResolverInterface;
 
-abstract class Expiry implements ExpiryInterface
+abstract class AbstractExpiry implements ExpiryInterface
 {
     use HasTable;
 
