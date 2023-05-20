@@ -46,7 +46,7 @@ class Adapter
         });
 
         $this->forwardMethodTap(self::ADAPTER_GETTERS, function (?string $key = null) {
-            $this->expiry?->expired($key, $this->forwardTo->forget(...));
+            $this->expiry?->expired($key, $this->getForward()->forget(...));
         });
 
         $this->forwardMethodTap(...$this->expiryTapperBuilder ??= [
