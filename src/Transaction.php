@@ -3,7 +3,7 @@
 namespace Mpietrucha\Storage;
 
 use Closure;
-use Exception;
+use Mpietrucha\Exception\RuntimeException;
 use Mpietrucha\Storage\Adapter;
 use Mpietrucha\Storage\Adapter\VoidAdapter;
 use Mpietrucha\Support\Concerns\HasReturn;
@@ -22,7 +22,7 @@ class Transaction
     public function __construct(protected AdapterInterface $adapter, array $expiryTapperBuilder, ?string $table)
     {
         if ($adapter instanceof VoidAdapter) {
-            throw new Exception('Cannot create transaction with VoidAdapter');
+            throw new RuntimeException('Cannot create transaction with', [VoidAdapter::class]);
         }
 
         $this->forwardTo(

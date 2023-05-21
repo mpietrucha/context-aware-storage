@@ -2,11 +2,11 @@
 
 namespace Mpietrucha\Storage\Adapter;
 
-use Exception;
 use Illuminate\Support\Enumerable;
 use Illuminate\Support\LazyCollection;
 use Mpietrucha\Storage\Contracts\AdapterInterface;
 use Mpietrucha\Storage\Contracts\ProcessorInterface;
+use Mpietrucha\Exception\BadMethodCallException;
 
 class VoidAdapter extends Adapter
 {
@@ -30,7 +30,7 @@ class VoidAdapter extends Adapter
 
     public function delete(): void
     {
-        throw new Exception('Delete is not supported in VoidAdapter');
+        throw new BadMethodCallException('Delete is not supported in', [self::class]);
     }
 
     public function get(): Enumerable

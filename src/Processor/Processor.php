@@ -3,7 +3,7 @@
 namespace Mpietrucha\Storage\Processor;
 
 use Closure;
-use Exception;
+use Mpietrucha\Exception\RuntimeException;
 use Illuminate\Support\Enumerable;
 use Mpietrucha\Support\Condition;
 use Illuminate\Support\Collection;
@@ -96,7 +96,7 @@ abstract class Processor implements ProcessorInterface
         }
 
         if (! $current instanceof Collection) {
-            throw new Exception("Cannot append to key `$key` with previously non array value.");
+            throw new RuntimeException('Cannot append to key', [$key], 'previously non array value');
         }
 
         return $current;
