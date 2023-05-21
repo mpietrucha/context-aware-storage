@@ -95,9 +95,7 @@ abstract class Processor implements ProcessorInterface
             $current ??= collect();
         }
 
-        if (! $current instanceof Collection) {
-            throw new RuntimeException('Cannot append to key', [$key], 'previously non array value');
-        }
+        throw_unless($current instanceof Collection, new RuntimeException('Cannot append to key', [$key], 'previously non array value'));
 
         return $current;
     }

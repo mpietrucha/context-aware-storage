@@ -72,13 +72,9 @@ class CarbonDateResolver implements ExpiryDateResolverInterface
     {
         [$duration, $indicator] = $expires;
 
-        if (! $this->validDuration($duration)) {
-            throw new InvalidArgumentException('Duration must be of type string or int');
-        }
+        throw_unless($this->validDuration($duration), new InvalidArgumentException('Duration must be of type string or int'));
 
-        if (! Types::string($indicator)) {
-            throw new InvalidArgumentException('Duration indicator must be of type string');
-        }
+        throw_unless(Types::string($indicator), new InvalidArgumentException('Duration indicator must be of type string'));
 
         return Carbon::now()->add(
             $this->sleep($duration, $indicator)->duration()
