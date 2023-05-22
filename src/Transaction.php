@@ -21,7 +21,9 @@ class Transaction
 
     public function __construct(protected AdapterInterface $adapter, array $expiryTapperBuilder, ?string $table)
     {
-        throw_if($adapter instanceof VoidAdapter, new RuntimeException('Cannot create transaction with', [VoidAdapter::class]));
+        throw_if($adapter instanceof VoidAdapter, new RuntimeException(
+            'Cannot create transaction with', [VoidAdapter::class]
+        ));
 
         $this->forwardTo(
             Adapter::create(VoidAdapter::create($adapter))->stale()->table($table)
