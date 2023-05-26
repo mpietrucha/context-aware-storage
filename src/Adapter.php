@@ -39,7 +39,7 @@ class Adapter
         protected ?ExpiryInterface $expiry = new FileExpiry
     )
     {
-        $this->forwardTo(fn () => $adapter->processor())->forwardResolveClosure();
+        $this->forwardTo($adapter->processor());
 
         $this->forwardArgumentsTransformer(function (Collection $arguments) {
             $arguments->get(0)->nullable()->string()->transform($this->transformer->transform(...));
