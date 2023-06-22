@@ -3,7 +3,7 @@
 namespace Mpietrucha\Storage\Adapter;
 
 use Mpietrucha\Support\Macro;
-use Mpietrucha\Support\Key;
+use Mpietrucha\Support\Hash;
 use Mpietrucha\Support\File;
 use Illuminate\Support\Enumerable;
 use Mpietrucha\Storage\Processor\SerializableProcessor;
@@ -33,7 +33,7 @@ class FileAdapter extends Adapter
 
     public function file(string ...$files): self
     {
-        $this->file = Key::create($files)->hash();
+        $this->file = Hash::md5($files);
 
         return $this;
     }
